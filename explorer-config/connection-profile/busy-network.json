@@ -1,0 +1,48 @@
+{
+	"name": "busy-network",
+	"version": "1.0.0",
+	"client": {
+		"tlsEnable": true,
+		"adminCredential": {
+			"id": "admin",
+			"password": "adminpw"
+		},
+		"enableAuthentication": true,
+		"organization": "BusyMSP",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+	"channels": {
+		"busychannel": {
+			"peers": {
+				"peer0.busy.technology": {}
+			}
+		}
+	},
+	"organizations": {
+		"BusyMSP": {
+			"mspid": "BusyMSP",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/busy.technology/users/User1@busy.technology/msp/keystore/2da89906e3904666dfded9a4066229bd3c4ed5fb60c85b940f9be858e13f8502_sk"
+			},
+			"peers": ["peer0.busy.technology"],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/busy.technology/users/User1@busy.technology/msp/signcerts/cert.pem"
+			}
+		}
+	},
+	"peers": {
+		"peer0.busy.technology": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/busy.technology/peers/peer0.busy.technology/tls/ca.crt"
+			},
+			"url": "grpcs://peer0.busy.technology:7051"
+		}
+	}
+}

@@ -1,0 +1,46 @@
+version: "2.1"
+networks:
+  busy-blockchain:
+services:
+  busy-api:
+    build: ~/BusyApi/
+    ports:
+    - "3000:3000"
+    depends_on:
+    - mongo
+    environment:
+      - MONGODB_URI=mongodb://busyadmin:BusyChain123@mongo:27017/busy?authSource=admin
+      - ENCRYPTION_SECRET=421f112b6bf3cb1f9c070df1dda0637a
+      - IV=3e8dd19fbe13add2
+    volumes:
+    - ./organizations/peerOrganizations/busy.technology/connection-busy.json:/usr/src/app/blockchain/connection-profile/connection-busy.json
+    networks:
+    - busy-blockchain
+  mongo:
+    image: mongo
+    environment:
+      # provide your credentials here
+      - MONGO_INITDB_ROOT_USERNAME=busyadmin
+      - MONGO_INITDB_ROOT_PASSWORD=BusyChain123
+      - MONGO_INITDB_DATABASE=busy
+    ports:
+    - "27017:27017"
+    volumes:
+    - data-volume:/data/db
+    networks:
+    - busy-blockchain
+  busy-events:
+    build: ~/BusyEvents/
+    depends_on:
+    - mongo
+    - busy-api
+    environment:
+      - MONGODB_URI=mongodb://busyadmin:BusyChain123@mongo:27017/busy?authSource=admin
+      - ENCRYPTION_SECRET=421f112b6bf3cb1f9c070df1dda0637a
+      - IV=3e8dd19fbe13add2
+    volumes:
+    - ./organizations/peerOrganizations/busy.technology/connection-busy.json:/usr/src/app/connection-profile/connection-busy.json
+    networks:
+    - busy-blockchain
+volumes:
+  data-volume:

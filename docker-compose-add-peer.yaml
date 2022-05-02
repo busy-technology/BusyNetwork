@@ -1,0 +1,63 @@
+version: '2.1'
+
+volumes:
+  peer2.busy.technology:
+
+networks:
+  busy-blockchain:   
+
+services: 
+
+  peer2.busy.technology:
+    container_name: peer2.busy.technology
+    image: hyperledger/fabric-peer:2.2.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=busy-network_busy-blockchain
+      - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer2.busy.technology
+      - CORE_PEER_ADDRESS=peer2.busy.technology:${PEER_PORT}
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:${PEER_PORT}
+      - CORE_PEER_CHAINCODEADDRESS=peer2.busy.technology:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer2.busy.technology:${PEER_PORT}
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.busy.technology:${PEER_PORT}
+      - CORE_PEER_LOCALMSPID=BusyMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer2.busy.technology:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    volumes:
+        - /var/run/docker.sock:/host/var/run/docker.sock
+        - ./organizations/peerOrganizations/busy.technology/peers/peer2.busy.technology/msp:/etc/hyperledger/fabric/msp
+        - ./organizations/peerOrganizations/busy.technology/peers/peer2.busy.technology/tls:/etc/hyperledger/fabric/tls
+        - peer2.busy.technology:/var/hyperledger/production
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - ${PEER_PORT}:${PEER_PORT}
+    networks:
+      - busy-blockchain
+    depends_on:
+      - couchdb.peer2.busy.technology
+
+  couchdb.peer2.busy.technology:
+    container_name: couchdb.peer2.busy.technology
+    image: couchdb:3.1.1
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "${COUCHDB_PORT}:5984"
+    networks:
+      - busy-blockchain
+
+  

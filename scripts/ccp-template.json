@@ -1,0 +1,60 @@
+{
+    "name": "${ORG}-network",
+    "version": "1.0.0",
+    "client": {
+        "organization": "${ORG}",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "${ORG}": {
+            "mspid": "${ORG}MSP",
+            "peers": [
+                "peer0.busy.technology",
+                "peer1.busy.technology"
+            ],
+            "certificateAuthorities": [
+                "ca.busy.technology"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.busy.technology": {
+            "url": "grpcs://peer0.busy.technology:${P0PORT}",
+            "tlsCACerts": {
+                "pem": "${PEERPEM}"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.busy.technology",
+                "hostnameOverride": "peer0.busy.technology"
+            }
+        },
+        "peer1.busy.technology": {
+            "url": "grpcs://peer1.busy.technology:${P1PORT}",
+            "tlsCACerts": {
+                "pem": "${PEERPEM}"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer1.busy.technology",
+                "hostnameOverride": "peer1.busy.technology"
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ca.busy.technology": {
+            "url": "https://ca.busy.technology:${CAPORT}",
+            "caName": "busy-ca",
+            "tlsCACerts": {
+                "pem": ["${CAPEM}"]
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}

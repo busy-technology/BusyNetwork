@@ -1,0 +1,49 @@
+version: '3.0'
+
+networks:
+  busy-blockchain:
+
+volumes:
+  pgdata:
+
+services:
+  ca-database:
+    image: postgres:12.3-alpine
+    environment:
+      - POSTGRES_PASSWORD=Busy@@123
+      - POSTGRES_USER=fabric
+      - POSTGRES_DB=busy_ca_db
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - busy-blockchain
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  fabric-ca-server:
+    image: hyperledger/fabric-ca:1.4.9
+    container_name: busy-ca-server
+    hostname: busy-ca-server
+    ports:
+      - "7054:7054"
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CA_NAME=busy-ca
+      - FABRIC_CA_SERVER_DB_TYPE=postgres
+      - FABRIC_CA_SERVER_DB_DATASOURCE=host=ca-database port=5432 user=fabric password=Busy@@123 dbname=busy_ca_db sslmode=disable
+      - FABRIC_CA_SERVER_CSR_HOSTS=busy-ca-server, localhost, ca.busy.network
+    networks:
+      - busy-blockchain
+    depends_on:
+      - ca-database
+    volumes:
+      - "./fabric-ca-server:/etc/hyperledger/fabric-ca-server"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw'
+
